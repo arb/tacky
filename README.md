@@ -1,5 +1,7 @@
 ![](https://github.com/continuationlabs/tacky/raw/master/images/smaller.png)
 
+<sub>Logo design by chris.ruppert@gmail.com</sub>
+
 Server-side response caching plugin for [hapi](http://hapijs.com/)
 
 [![Current Version](https://img.shields.io/npm/v/tacky.svg)](https://www.npmjs.org/package/tacky)
