@@ -7,7 +7,7 @@ Server-side response caching plugin for [hapi](http://hapijs.com/)
 [![Current Version](https://img.shields.io/npm/v/tacky.svg)](https://www.npmjs.org/package/tacky)
 [![Build Status](https://travis-ci.org/continuationlabs/tacky.svg)](https://travis-ci.org/continuationlabs/tacky)
 
-tacky adds a new handler named `cache` that can be used on any route that is a "get" method. tacky will try to serve a value from the server cache if present. If the value is not in the server cache, it will call a `hydrate` function, reply with the result and the cache the value in the server cache for subsequent requests. tacky stores values in a hapi server cache provision. It does *not* just set the response cache headers.
+tacky adds a new handler named `cache` that can be used on any route that is a `GET` method. tacky will try to serve a value from the server cache first if present. If the value is not in the server cache, it will call `hydrate()`, reply with the result and then cache the value in the server cache for subsequent requests. tacky stores values in a hapi server cache provision. It does *not* just set the response cache headers.
 
 ## Example
 _copied from examples/defualt.js_
@@ -72,7 +72,7 @@ These are the available options passed into Tack during plugin registration (`se
 
 - `hydrate` - a function used to get data when absent from the cache. Must have the following signature: `function (request, callback)` where:
   - `request` - the incoming hapi request
-  - `callback(err, result, state)` - function to execute when hydrate is finished.
+  - `callback(err, result[, state])` - function to execute when hydrate is finished.
     - `err` - any error during processing. If this value is truthy, the request will result in a 500 and the request will _not_ be cached.
     - `result` - the value to save in the cache.
     - `[state]` - this value will be attached to `request.response.plugins.tacky` so it will be available during the various request lifecycle methods. Defaults to `undefined`.
@@ -81,28 +81,30 @@ These are the available options passed into Tack during plugin registration (`se
   - `request` - incoming hapi request object.
 
 __context__
-The `this` pointed for `hydrate` and `generateKey` can be controlled via the `bind` option for the [route handler](https://github.com/hapijs/hapi/blob/master/API.md#route-options).
+The `this` pointer for `hydrate` and `generateKey` can be controlled via the `bind` option for the [route handler](https://github.com/hapijs/hapi/blob/master/API.md#route-options).
 
 Example:
 
 ```js
-handler: {
-  cache: {
-    hydrate: function (request, callback) {
-
-      // this is {foo: 'bar', baz: true}
-      callback(null, this.baz);
-    },
-    generateKey: function (request) {
-
-      // this is {foo: 'bar', baz: true}
-      // don't do this because nothing will cache
-      return Date.now() + this.foo;
+config: {
+  handler: {
+    cache: {
+      hydrate: function (request, callback) {
+  
+        // this is {foo: 'bar', baz: true}
+        callback(null, this.baz);
+      },
+      generateKey: function (request) {
+  
+        // this is {foo: 'bar', baz: true}
+        // don't do this because nothing will cache
+        return Date.now() + this.foo;
+      }
     }
+  },
+  bind: {
+    foo: 'bar',
+    baz: true
   }
-},
-bind: {
-  foo: 'bar',
-  baz: true
 }
 ```
