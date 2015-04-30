@@ -1,0 +1,24 @@
+{
+  "name": "tacky",
+  "version": "0.0.1",
+  "description": "Server-side memory cache handler for hapi",
+  "main": "index.js",
+  "scripts": {
+    "test": "lab -t 100 -Lva code"
+  },
+  "keywords": [
+    "hapi",
+    "cache",
+    "plugin"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "code": "1.4.x",
+    "hapi": "8.4.x",
+    "insync": "1.0.x",
+    "lab": "5.7.x"
+  },
+  "dependencies": {
+    "hoek": "2.12.x"
+  }
+}
