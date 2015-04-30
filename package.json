@@ -3,6 +3,10 @@
   "version": "1.0.1",
   "description": "Server-side response caching plugin for hapi",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/continuationlabs/tacky.git"
+  },
   "scripts": {
     "test": "lab -t 100 -Lva code"
   },
