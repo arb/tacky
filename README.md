@@ -86,23 +86,25 @@ The `this` pointed for `hydrate` and `generateKey` can be controlled via the `bi
 Example:
 
 ```js
-handler: {
-  cache: {
-    hydrate: function (request, callback) {
-
-      // this is {foo: 'bar', baz: true}
-      callback(null, this.baz);
-    },
-    generateKey: function (request) {
-
-      // this is {foo: 'bar', baz: true}
-      // don't do this because nothing will cache
-      return Date.now() + this.foo;
+config: {
+  handler: {
+    cache: {
+      hydrate: function (request, callback) {
+  
+        // this is {foo: 'bar', baz: true}
+        callback(null, this.baz);
+      },
+      generateKey: function (request) {
+  
+        // this is {foo: 'bar', baz: true}
+        // don't do this because nothing will cache
+        return Date.now() + this.foo;
+      }
     }
+  },
+  bind: {
+    foo: 'bar',
+    baz: true
   }
-},
-bind: {
-  foo: 'bar',
-  baz: true
 }
 ```
