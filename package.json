@@ -1,6 +1,6 @@
 {
   "name": "tacky",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Server-side memory cache handler for hapi",
   "main": "index.js",
   "scripts": {
