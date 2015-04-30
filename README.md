@@ -81,7 +81,7 @@ These are the available options passed into Tack during plugin registration (`se
   - `request` - incoming hapi request object.
 
 __context__
-The `this` pointed for `hydrate` and `generateKey` can be controlled via the `bind` option for the [route handler](https://github.com/hapijs/hapi/blob/master/API.md#route-options).
+The `this` pointer for `hydrate` and `generateKey` can be controlled via the `bind` option for the [route handler](https://github.com/hapijs/hapi/blob/master/API.md#route-options).
 
 Example:
 
