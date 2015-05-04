@@ -53,7 +53,7 @@ server.register({
 });
 ```
 
-When the first request comes in to "/", the `hydrate` method is called. We are getting the Google home page and after 1000 miliseconds, we are calling back with the result. If you make a second request to "/", you should notice the delay isn't there and the response is almost instant. This is because the original response has been cached and sent back to the client. If you are testing with a browser, you should notice that the cache header decrements on each request.
+When the first request comes in to "/", the `hydrate` method is called. We are getting the Google home page and after 1000 milliseconds, we are calling back with the result. If you make a second request to "/", you should notice the delay isn't there and the response is almost instant. This is because the original response has been cached and sent back to the client. If you are testing with a browser, you should notice that the cache header decrements on each request.
 
 ## API
 
@@ -75,10 +75,16 @@ These are the available options passed into Tack during plugin registration (`se
   - `callback(err, result[, state])` - function to execute when hydrate is finished.
     - `err` - any error during processing. If this value is truthy, the request will result in a 500 and the request will _not_ be cached.
     - `result` - the value to save in the cache.
-    - `[state]` - this value will be attached to `request.response.plugins.tacky` so it will be available during the various request lifecycle methods. Defaults to `undefined`.
+    - `[state]` - this value will be attached to `request.response.plugins.tacky.state` so it will be available during the various request lifecycle methods. Defaults to `null`.
 - `[privacy]` - override the global `privacy` setting on a per route basis.
-- `[generateKey(request)]` - a function used to generate the cache key. Must return a string. The default value will return `request.raw.req.url`.
+- `[generateKey(request)]` - a function used to generate the cache key. The default value will return `request.raw.req.url`. If `undefined` is returned, cache lookup and storage will be completely skilled. All other results must be strings.
   - `request` - incoming hapi request object.
+
+tacky provides two additional data points throughout the request lifecycle via `response.plugins.tacky`; `state` and `cache`. These can be used outside of the plugin for business specific application.
+  - `cache` - object with the following keys. Will be `null` if `generateKey` returns `undefined`.
+    - `ttl` - number of milliseconds remaining for this cache record
+    - `privacy` - privacy setting used for the cache header
+  - `state` - object passed into the callback of the `hydrate` method. Will be `null` if not provided by the callback to the `hydrate` method.
 
 __context__
 The `this` pointer for `hydrate` and `generateKey` can be controlled via the `bind` option for the [route handler](https://github.com/hapijs/hapi/blob/master/API.md#route-options).
@@ -90,12 +96,12 @@ config: {
   handler: {
     cache: {
       hydrate: function (request, callback) {
-  
+
         // this is {foo: 'bar', baz: true}
         callback(null, this.baz);
       },
       generateKey: function (request) {
-  
+
         // this is {foo: 'bar', baz: true}
         // don't do this because nothing will cache
         return Date.now() + this.foo;
