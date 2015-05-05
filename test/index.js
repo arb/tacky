@@ -408,9 +408,13 @@ describe('tacky', function () {
         });
     });
 
-    it('will pass the handler bind context to the hydrate function', function (done) {
+    it('will pass the context option to the hydrate and generateKey function', function (done) {
 
         var server = new Hapi.Server({ debug: false });
+        var context = {
+            foo: 'bar',
+            baz: true
+        };
         server.connection();
 
         Insync.series([
@@ -418,7 +422,7 @@ describe('tacky', function () {
 
                 server.register({
                     register: Tacky,
-                    options: { expiresIn: 100000 }
+                    options: { expiresIn: 100000, bind: context }
                 }, next);
             }, function (next) {
 
@@ -430,18 +434,16 @@ describe('tacky', function () {
                             cache: {
                                 hydrate: function (request, callback) {
 
-                                    expect(this).to.deep.equal({
-                                        foo: 'bar',
-                                        baz: true
-                                    });
+                                    expect(this).to.deep.equal(context);
                                     callback(null, true);
+                                },
+                                generateKay: function (request) {
+
+                                    expect(this).to.deep.equal(context);
+                                    return request.raw.req.url;
                                 },
                                 privacy: 'private'
                             }
-                        },
-                        bind: {
-                            foo: 'bar',
-                            baz: true
                         }
                     }
                 });
