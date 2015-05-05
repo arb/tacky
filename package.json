@@ -23,6 +23,7 @@
     "lab": "5.7.x"
   },
   "dependencies": {
-    "hoek": "2.12.x"
+    "hoek": "2.12.x",
+    "insync": "1.x.x"
   }
 }

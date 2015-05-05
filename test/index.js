@@ -252,7 +252,7 @@ describe('tacky', function () {
         });
     });
 
-    it('provides request state', function (done) {
+    it('provides request state and cache information', function (done) {
 
         var result = [1, 2, 3, 4, 5];
         var state = {
@@ -266,7 +266,6 @@ describe('tacky', function () {
         Helper.prepareServer({
             hydrate: function (request, callback) {
 
-                //expect(this).to.be.undefined();
                 callback(null, result, state);
             }
         }, function (err, server) {
@@ -279,7 +278,8 @@ describe('tacky', function () {
                     server.start(next);
                     server.ext('onPreResponse', function (request, reply) {
 
-                        expect(request.response.plugins.tacky).to.deep.equal(state);
+                        expect(request.response.plugins.tacky.state).to.deep.equal(state);
+                        expect(request.response.plugins.tacky.cache).to.exist();
                         reply.continue();
                     });
                 },
@@ -456,6 +456,52 @@ describe('tacky', function () {
                     next();
                 });
             }], done);
+    });
+
+    it('will not cache values if the cachekey is null or undefined', function (done) {
+
+        var result = { foo: 'bar', baz: 123 };
+        Helper.prepareServer({
+            hydrate: function (request, callback) {
+
+                callback(null, result);
+            },
+            generateKey: function () {
+
+                return undefined;
+            }
+        }, function (err, server) {
+
+            expect(err).to.not.exist();
+
+            server.ext('onPreResponse', function (request, reply) {
+
+                expect(request.response.plugins.tacky).to.deep.equal({
+                    cache: null,
+                    state: null
+                });
+                reply.continue();
+            });
+
+            Insync.series([
+                function (next) {
+
+                    server.inject({
+                        url: '/'
+                    }, function (res) {
+
+                        expect(res.statusCode).to.equal(200);
+                        expect(res.headers['cache-control']).to.equal('no-cache');
+                        expect(res.result).to.deep.equal(result);
+
+                        var cache = server._caches._default;
+                        expect(cache.segments['!tacky']).to.be.true();
+                        expect(cache.client.connection.cache).to.have.length(0);
+                        done();
+                    });
+                }
+            ], done);
+        });
     });
 
     describe('generateKey()', function () {
