@@ -24,6 +24,6 @@
   },
   "dependencies": {
     "hoek": "2.12.x",
-    "insync": "^1.0.0"
+    "insync": "1.x.x"
   }
 }
