@@ -67,6 +67,7 @@ These are the available options passed into Tack during plugin registration (`se
   - 'public' - mark the response as suitable for public caching.
   - 'private' - mark the response as suitable only for private caching.
 - `cache` - name of the cache provision to use if it has already been created by the hapi server. If specified, the cache must already exist before registration. Defaults to the default in-memory hapi cache.
+- `bind` - context object for `hydrate` and `generateKey`. Defaults to `undefined`.
 
 ### `cache` Route Handler Options
 
@@ -85,32 +86,3 @@ tacky provides two additional data points throughout the request lifecycle via `
     - `ttl` - number of milliseconds remaining for this cache record
     - `privacy` - privacy setting used for the cache header
   - `state` - object passed into the callback of the `hydrate` method. Will be `null` if not provided by the callback to the `hydrate` method.
-
-__context__
-The `this` pointer for `hydrate` and `generateKey` can be controlled via the `bind` option for the [route handler](https://github.com/hapijs/hapi/blob/master/API.md#route-options).
-
-Example:
-
-```js
-config: {
-  handler: {
-    cache: {
-      hydrate: function (request, callback) {
-
-        // this is {foo: 'bar', baz: true}
-        callback(null, this.baz);
-      },
-      generateKey: function (request) {
-
-        // this is {foo: 'bar', baz: true}
-        // don't do this because nothing will cache
-        return Date.now() + this.foo;
-      }
-    }
-  },
-  bind: {
-    foo: 'bar',
-    baz: true
-  }
-}
-```
