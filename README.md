@@ -53,7 +53,7 @@ server.register({
 });
 ```
 
-When the first request comes in to "/", the `hydrate` method is called. We are getting the Google home page and after 1000 milliseconds, we are calling back with the result. If you make a second request to "/", you should notice the delay isn't there and the response is almost instant. This is because the original response has been cached and sent back to the client. If you are testing with a browser, you should notice that the cache header decrements on each request.
+When the first request comes in to "/", the `hydrate` method is called. We are getting the Google home page and after 1000 milliseconds, we are calling back with the result. If you make a second request to "/", you should notice the delay isn't there and the response is almost instantaneous. This is because the original response has been cached and sent back to the client. If you are testing with a browser, you should notice that the cache header decrements on each request. tacky will set the client cache header ("cache-control:max-age=3566, must-revalidate") based on the ttl options. The cache header ttl will be randomized so that the server isn't slammed by multiple requests at the same time. The goal is to stagger the cache header expiration across different clients.
 
 ## API
 
