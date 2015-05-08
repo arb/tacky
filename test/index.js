@@ -19,6 +19,7 @@ var internals = {
 };
 
 internals.getTtl = function (header) {
+
     var age = header.match(/(\d+)/)[0];
     age = parseInt(age, 10);
     return age;
@@ -115,8 +116,7 @@ describe('tacky', function () {
                         url: '/'
                     }, function (res) {
 
-                        expect(res.headers['cache-control']).to.exist();
-                        expect(internals.headerRegex.test(res.headers['cache-control'])).to.be.true();
+                        expect(res.headers['cache-control']).to.match(internals.headerRegex);
                         expect(res.result).to.deep.equal(result);
                         setTimeout(next, 100);
                     });
@@ -127,8 +127,7 @@ describe('tacky', function () {
                         url: '/'
                     }, function (res) {
 
-                        expect(res.headers['cache-control']).to.exist();
-                        expect(internals.headerRegex.test(res.headers['cache-control'])).to.be.true();
+                        expect(res.headers['cache-control']).to.match(internals.headerRegex);
 
                         ttlTwo = internals.getTtl(res.headers['cache-control']);
                         expect(ttlTwo).to.be.lessThan(100);
@@ -159,7 +158,7 @@ describe('tacky', function () {
                         url: '/'
                     }, function (res) {
 
-                        expect(internals.headerRegex.test(res.headers['cache-control'])).to.be.true();
+                        expect(res.headers['cache-control']).to.match(internals.headerRegex);
                         expect(res.result).to.deep.equal(result);
 
                         var cache = server._caches._default;
@@ -217,7 +216,7 @@ describe('tacky', function () {
                     url: '/'
                 }, function (res) {
 
-                    expect(internals.headerRegex.test(res.headers['cache-control'])).to.be.true();
+                    expect(res.headers['cache-control']).to.match(internals.headerRegex);
 
                     var cache = server._caches['super-cache'];
                     expect(cache.segments['!tacky']).to.be.true();
@@ -468,7 +467,7 @@ describe('tacky', function () {
                     url: '/'
                 }, function (res) {
 
-                    expect(internals.headerRegex.test(res.headers['cache-control'])).to.be.true();
+                    expect(res.headers['cache-control']).to.match(internals.headerRegex);
                     next();
                 });
             }], done);
@@ -547,7 +546,7 @@ describe('tacky', function () {
                             }
                         }, function (res) {
 
-                            expect(internals.headerRegex.test(res.headers['cache-control'])).to.be.true();
+                            expect(res.headers['cache-control']).to.match(internals.headerRegex);
 
                             var cache = server._caches._default;
                             expect(cache.segments['!tacky']).to.be.true();
