@@ -14,6 +14,16 @@ var before = lab.before;
 var after = lab.after;
 var expect = Code.expect;
 
+var internals = {
+    headerRegex: /max-age=\d+,\s+must-revalidate(,\s+private)?/
+};
+
+internals.getTtl = function (header) {
+    var age = header.match(/(\d+)/)[0];
+    age = parseInt(age, 10);
+    return age;
+};
+
 describe('tacky', function () {
 
     it('throws if the handler is missing a hydrate function', function (done) {
@@ -86,6 +96,9 @@ describe('tacky', function () {
     it('sets the cache-control header smartly', function (done) {
 
         var result = { foo: 'bar', baz: 123 };
+        var ttlOne;
+        var ttlTwo;
+
         Helper.prepareServer({
             hydrate: function (request, callback) {
 
@@ -102,9 +115,10 @@ describe('tacky', function () {
                         url: '/'
                     }, function (res) {
 
-                        expect(res.headers['cache-control']).to.equal('max-age=100, must-revalidate');
+                        expect(res.headers['cache-control']).to.exist();
+                        expect(internals.headerRegex.test(res.headers['cache-control'])).to.be.true();
                         expect(res.result).to.deep.equal(result);
-                        setTimeout(next, 10);
+                        setTimeout(next, 100);
                     });
                 },
                 function (next) {
@@ -114,10 +128,10 @@ describe('tacky', function () {
                     }, function (res) {
 
                         expect(res.headers['cache-control']).to.exist();
+                        expect(internals.headerRegex.test(res.headers['cache-control'])).to.be.true();
 
-                        var age = res.headers['cache-control'].match(/(\d+)/)[0];
-                        age = parseInt(age, 10);
-                        expect(age).to.be.lessThan(100);
+                        ttlTwo = internals.getTtl(res.headers['cache-control']);
+                        expect(ttlTwo).to.be.lessThan(100);
                         expect(res.result).to.deep.equal(result);
                         next();
                     });
@@ -145,7 +159,7 @@ describe('tacky', function () {
                         url: '/'
                     }, function (res) {
 
-                        expect(res.headers['cache-control']).to.equal('max-age=100, must-revalidate');
+                        expect(internals.headerRegex.test(res.headers['cache-control'])).to.be.true();
                         expect(res.result).to.deep.equal(result);
 
                         var cache = server._caches._default;
@@ -203,7 +217,7 @@ describe('tacky', function () {
                     url: '/'
                 }, function (res) {
 
-                    expect(res.headers['cache-control']).to.equal('max-age=100, must-revalidate');
+                    expect(internals.headerRegex.test(res.headers['cache-control'])).to.be.true();
 
                     var cache = server._caches['super-cache'];
                     expect(cache.segments['!tacky']).to.be.true();
@@ -454,7 +468,7 @@ describe('tacky', function () {
                     url: '/'
                 }, function (res) {
 
-                    expect(res.headers['cache-control']).to.equal('max-age=100, must-revalidate, private');
+                    expect(internals.headerRegex.test(res.headers['cache-control'])).to.be.true();
                     next();
                 });
             }], done);
@@ -533,7 +547,7 @@ describe('tacky', function () {
                             }
                         }, function (res) {
 
-                            expect(res.headers['cache-control']).to.equal('max-age=100, must-revalidate');
+                            expect(internals.headerRegex.test(res.headers['cache-control'])).to.be.true();
 
                             var cache = server._caches._default;
                             expect(cache.segments['!tacky']).to.be.true();
