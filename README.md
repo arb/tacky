@@ -75,8 +75,8 @@ These are the available options passed into Tack during plugin registration (`se
   - `request` - the incoming hapi request
   - `callback(err, result[, state])` - function to execute when hydrate is finished.
     - `err` - any error during processing. If this value is truthy, the request will result in a 500 and the request will _not_ be cached.
-    - `result` - the value to save in the cache.
-    - `[state]` - this value will be attached to `request.response.plugins.tacky.state` so it will be available during the various request lifecycle methods. Defaults to `null`.
+    - `result` - the value to save in the cache and will be used in responses via `reply(response)`.
+    - `[state]` - this value will be attached to `request.response.plugins.tacky.state` so it will be available during the various request lifecycle methods. Defaults to `null`. `state` is also stored in the cache so it should only contain information truly necessary for generating a cached response and should *not* include any request specific information.
 - `[privacy]` - override the global `privacy` setting on a per route basis.
 - `[expiresIn]` - override the global `expiresIn` setting on a per route basis.
 - `[generateKey(request)]` - a function used to generate the cache key. The default value will return `request.raw.req.url`. If `undefined` is returned, cache lookup and storage will be completely skilled. All other results must be strings.

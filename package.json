@@ -19,7 +19,6 @@
   "devDependencies": {
     "code": "1.4.x",
     "hapi": "8.4.x",
-    "insync": "1.0.x",
     "lab": "5.7.x"
   },
   "dependencies": {

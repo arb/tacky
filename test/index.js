@@ -274,7 +274,7 @@ describe('tacky', function () {
         });
     });
 
-    it('provides request state and cache information view response.plugins.tacky', function (done) {
+    it('always provides request state and cache information view response.plugins.tacky', function (done) {
 
         var result = [1, 2, 3, 4, 5];
         var state = {
@@ -284,12 +284,15 @@ describe('tacky', function () {
                 name: 'tacky'
             }
         };
+        var hitCount = 0;
 
         Helper.prepareServer({
             hydrate: function (request, callback) {
 
+                hitCount++;
                 callback(null, result, state);
-            }
+            },
+            start: true
         }, function (err, server) {
 
             expect(err).to.not.exist();
@@ -297,17 +300,16 @@ describe('tacky', function () {
             Insync.series([
                 function (next) {
 
-                    server.start(next);
                     server.ext('onPreResponse', function (request, reply) {
 
-                        expect(request.response.plugins.tacky.state).to.deep.equal(state);
-                        expect(request.response.plugins.tacky.cache).to.deep.equal({
-                            ttl: 0,
-                            maxAge: 100000,
-                            privacy: 'default'
-                        });
+                        var tacky = request.response.plugins.tacky;
+                        expect(tacky.state).to.deep.equal(state);
+                        expect(tacky.cache).to.exist();
+                        expect(tacky.cache).to.have.length(3);
                         reply.continue();
                     });
+
+                    next();
                 },
                 function (next) {
 
@@ -315,11 +317,24 @@ describe('tacky', function () {
                         url: '/'
                     }, function (res) {
 
-                        expect(res.result).to.equal(result);
+                        expect(res.result).to.deep.equal(result);
+                        next();
+                    });
+                }, function (next) {
+
+                    server.inject({
+                        url: '/'
+                    }, function (res) {
+
+                        expect(res.result).to.deep.equal(result);
                         next();
                     });
                 }
-            ], done);
+            ], function (err) {
+
+                expect(hitCount).to.equal(1);
+                done();
+            });
         });
     });
 
@@ -392,7 +407,10 @@ describe('tacky', function () {
                         Policy.prototype.set = set;
 
                         expect(id).to.equal('/');
-                        expect(value).to.deep.equal(result);
+                        expect(value).to.deep.equal({
+                            result: result,
+                            state: null
+                        });
                         callback(new Error('mock error for testing'));
                     };
 
@@ -577,7 +595,7 @@ describe('tacky', function () {
                         var cache = server._caches._default;
                         expect(cache.segments['!tacky']).to.be.true();
                         expect(cache.client.connection.cache['!tacky']['/cache'].ttl).to.equal(1000000);
-                        expect(cache.client.connection.cache['!tacky']['/cache'].item).to.equal(JSON.stringify(result));
+                        expect(cache.client.connection.cache['!tacky']['/cache'].item).to.equal(JSON.stringify({ result: result, state: null }));
 
                         next();
                     });
@@ -592,7 +610,7 @@ describe('tacky', function () {
 
                         var cache = server._caches._default;
                         expect(cache.client.connection.cache['!tacky']['/'].ttl).to.equal(100000);
-                        expect(cache.client.connection.cache['!tacky']['/'].item).to.equal('123456');
+                        expect(cache.client.connection.cache['!tacky']['/'].item).to.equal(JSON.stringify({ result: 123456, state: null }));
 
                         next();
                     });
