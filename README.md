@@ -78,11 +78,13 @@ These are the available options passed into Tack during plugin registration (`se
     - `result` - the value to save in the cache.
     - `[state]` - this value will be attached to `request.response.plugins.tacky.state` so it will be available during the various request lifecycle methods. Defaults to `null`.
 - `[privacy]` - override the global `privacy` setting on a per route basis.
+- `[expiresIn]` - override the global `expiresIn` setting on a per route basis.
 - `[generateKey(request)]` - a function used to generate the cache key. The default value will return `request.raw.req.url`. If `undefined` is returned, cache lookup and storage will be completely skilled. All other results must be strings.
   - `request` - incoming hapi request object.
 
 tacky provides two additional data points throughout the request lifecycle via `response.plugins.tacky`; `state` and `cache`. These can be used outside of the plugin for business specific application.
   - `cache` - object with the following keys. Will be `null` if `generateKey` returns `undefined`.
-    - `ttl` - number of milliseconds remaining for this cache record
+    - `maxAge` - number of milliseconds remaining for this cache record. This value should be used in custom logic outside tacky.
+    - `ttl` - number of milliseconds remaining for this cache record. Will be `0` the first time a record is cached. Using `maxAge` is preferred because of this.
     - `privacy` - privacy setting used for the cache header
-  - `state` - object passed into the callback of the `hydrate` method. Will be `null` if not provided by the callback to the `hydrate` method.
+  - `state` - object passed into the callback of the `hydrate` method. Will be `null` if not provided by the callback to the `hydrate` method or if the result is available in the cache.

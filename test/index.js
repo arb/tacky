@@ -25,6 +25,15 @@ internals.getTtl = function (header) {
     return age;
 };
 
+internals.checkCacheHeader = function (res, mix, max) {
+
+    expect(res.headers['cache-control']).to.match(internals.headerRegex);
+
+    var ttl = internals.getTtl(res.headers['cache-control']);
+    // In seconds
+    expect(ttl).to.be.between(mix, max);
+};
+
 describe('tacky', function () {
 
     it('throws if the handler is missing a hydrate function', function (done) {
@@ -97,14 +106,14 @@ describe('tacky', function () {
     it('sets the cache-control header smartly', function (done) {
 
         var result = { foo: 'bar', baz: 123 };
-        var ttlOne;
         var ttlTwo;
 
         Helper.prepareServer({
             hydrate: function (request, callback) {
 
                 callback(null, result);
-            }
+            },
+            expiresIn: 1000000
         }, function (err, server) {
 
             expect(err).to.not.exist();
@@ -116,9 +125,9 @@ describe('tacky', function () {
                         url: '/'
                     }, function (res) {
 
-                        expect(res.headers['cache-control']).to.match(internals.headerRegex);
+                        internals.checkCacheHeader(res, 599, 1000);
                         expect(res.result).to.deep.equal(result);
-                        setTimeout(next, 100);
+                        setTimeout(next, 1000);
                     });
                 },
                 function (next) {
@@ -127,10 +136,10 @@ describe('tacky', function () {
                         url: '/'
                     }, function (res) {
 
+                        internals.checkCacheHeader(res, 587, 980);
                         expect(res.headers['cache-control']).to.match(internals.headerRegex);
 
                         ttlTwo = internals.getTtl(res.headers['cache-control']);
-                        expect(ttlTwo).to.be.lessThan(100);
                         expect(res.result).to.deep.equal(result);
                         next();
                     });
@@ -158,7 +167,7 @@ describe('tacky', function () {
                         url: '/'
                     }, function (res) {
 
-                        expect(res.headers['cache-control']).to.match(internals.headerRegex);
+                        internals.checkCacheHeader(res, 59, 100);
                         expect(res.result).to.deep.equal(result);
 
                         var cache = server._caches._default;
@@ -216,7 +225,7 @@ describe('tacky', function () {
                     url: '/'
                 }, function (res) {
 
-                    expect(res.headers['cache-control']).to.match(internals.headerRegex);
+                    internals.checkCacheHeader(res, 59, 100);
 
                     var cache = server._caches['super-cache'];
                     expect(cache.segments['!tacky']).to.be.true();
@@ -265,7 +274,7 @@ describe('tacky', function () {
         });
     });
 
-    it('provides request state and cache information', function (done) {
+    it('provides request state and cache information view response.plugins.tacky', function (done) {
 
         var result = [1, 2, 3, 4, 5];
         var state = {
@@ -292,7 +301,11 @@ describe('tacky', function () {
                     server.ext('onPreResponse', function (request, reply) {
 
                         expect(request.response.plugins.tacky.state).to.deep.equal(state);
-                        expect(request.response.plugins.tacky.cache).to.exist();
+                        expect(request.response.plugins.tacky.cache).to.deep.equal({
+                            ttl: 0,
+                            maxAge: 100000,
+                            privacy: 'default'
+                        });
                         reply.continue();
                     });
                 },
@@ -339,6 +352,7 @@ describe('tacky', function () {
                         url: '/'
                     }, function (res) {
 
+                        internals.checkCacheHeader(res, 59, 100);
                         expect(res.result).to.equal(result);
                         next();
                     });
@@ -386,6 +400,7 @@ describe('tacky', function () {
                         url: '/'
                     }, function (res) {
 
+                        internals.checkCacheHeader(res, 59, 100);
                         expect(res.result).to.equal(result);
                         next();
                     });
@@ -467,13 +482,13 @@ describe('tacky', function () {
                     url: '/'
                 }, function (res) {
 
-                    expect(res.headers['cache-control']).to.match(internals.headerRegex);
+                    internals.checkCacheHeader(res, 59, 100);
                     next();
                 });
             }], done);
     });
 
-    it('will not cache values if the cachekey is null or undefined', function (done) {
+    it('will not cache values if the generateKey is null or undefined', function (done) {
 
         var result = { foo: 'bar', baz: 123 };
         Helper.prepareServer({
@@ -516,6 +531,72 @@ describe('tacky', function () {
                     });
                 }
             ], done);
+        });
+    });
+
+    it('will use the expiresIn route option instead of the Policy default', function (done) {
+
+        var result = [{ foo: 'bar' }, { foo: 'baz' }, { foo: 'zip' }];
+
+        Helper.prepareServer({
+            hydrate: function (request, callback) {
+
+                callback(null, 123456);
+            },
+            start: true
+        }, function (err, server) {
+
+            Insync.series([
+                function (next) {
+
+                    server.route({
+                        method: 'get',
+                        path: '/cache',
+                        config: {
+                            handler: {
+                                cache: {
+                                    hydrate: function (request, callback) {
+
+                                        return callback(null, result);
+                                    },
+                                    expiresIn: 1000000
+                                }
+                            }
+                        }
+                    });
+                    next();
+                }, function (next) {
+
+                    server.inject({
+                        url: '/cache'
+                    }, function (res) {
+
+                        internals.checkCacheHeader(res, 599, 1000);
+                        expect(res.result).to.deep.equal(result);
+
+                        var cache = server._caches._default;
+                        expect(cache.segments['!tacky']).to.be.true();
+                        expect(cache.client.connection.cache['!tacky']['/cache'].ttl).to.equal(1000000);
+                        expect(cache.client.connection.cache['!tacky']['/cache'].item).to.equal(JSON.stringify(result));
+
+                        next();
+                    });
+                }, function (next) {
+
+                    server.inject({
+                        url: '/'
+                    }, function (res) {
+
+                        internals.checkCacheHeader(res, 59, 100);
+                        expect(res.result).to.equal(123456);
+
+                        var cache = server._caches._default;
+                        expect(cache.client.connection.cache['!tacky']['/'].ttl).to.equal(100000);
+                        expect(cache.client.connection.cache['!tacky']['/'].item).to.equal('123456');
+
+                        next();
+                    });
+                }], done);
         });
     });
 

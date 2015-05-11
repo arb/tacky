@@ -7,6 +7,7 @@ exports.prepareServer = function (config, callback) {
 
     /*eslint-disable */
     config.start = (config.start == null ? true : config.start);
+    config.expiresIn = config.expiresIn || 100000;
     /*eslint-enable */
     var server = new Hapi.Server({
         debug: false
@@ -18,7 +19,7 @@ exports.prepareServer = function (config, callback) {
 
             server.register({
                 register: Tacky,
-                options: { expiresIn: 100000 }
+                options: { expiresIn: config.expiresIn }
             }, next);
         }, function (next) {
 
