@@ -1,8 +1,6 @@
 var Http = require('http');
-
 var Hapi = require('hapi');
 var Hoek = require('hoek');
-
 var Tacky = require('../lib');
 
 var server = new Hapi.Server();
