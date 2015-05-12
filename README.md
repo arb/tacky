@@ -79,7 +79,7 @@ These are the available options passed into Tack during plugin registration (`se
     - `[state]` - this value will be attached to `request.response.plugins.tacky.state` so it will be available during the various request lifecycle methods. Defaults to `null`. `state` is also stored in the cache so it should only contain information truly necessary for generating a cached response and should *not* include any request specific information.
 - `[privacy]` - override the global `privacy` setting on a per route basis.
 - `[expiresIn]` - override the global `expiresIn` setting on a per route basis.
-- `[generateKey(request)]` - a function used to generate the cache key. The default value will return `request.raw.req.url`. If `undefined` is returned, cache lookup and storage will be completely skilled. All other results must be strings.
+- `[generateKey(request)]` - a function used to generate the cache key. The default value will return `request.raw.req.url`. If `undefined` is returned, cache lookup and storage will be completely skipped. All other results must be strings.
   - `request` - incoming hapi request object.
 
 tacky provides two additional data points throughout the request lifecycle via `response.plugins.tacky`; `state` and `cache`. These can be used outside of the plugin for business specific application.
