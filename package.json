@@ -1,6 +1,6 @@
 {
   "name": "tacky",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Server-side response caching plugin for hapi",
   "main": "index.js",
   "repository": {
