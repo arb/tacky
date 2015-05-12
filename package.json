@@ -8,7 +8,8 @@
     "url": "git://github.com/continuationlabs/tacky.git"
   },
   "scripts": {
-    "test": "lab -t 100 -Lva code"
+    "test": "lab -t 100 -Lva code",
+    "changelog": "node node_modules/.bin/mdchangelog --remote continuationlabs/tacky --no-prologue  --order-milestones semver --order-issues closed_at"
   },
   "keywords": [
     "hapi",
