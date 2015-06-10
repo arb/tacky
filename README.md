@@ -10,7 +10,7 @@ Server-side response caching plugin for [hapi](http://hapijs.com/)
 tacky adds a new handler named `cache` that can be used on any route that is a `GET` method. tacky will try to serve a value from the server cache first if present. If the value is not in the server cache, it will call `hydrate()`, reply with the result and then cache the value in the server cache for subsequent requests. tacky stores values in a hapi server cache provision. It does *not* just set the response cache headers.
 
 ## Example
-_copied from examples/defualt.js_
+_copied from examples/default.js_
 
 ```js
 var Http = require('http');
