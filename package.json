@@ -2,25 +2,30 @@
   "name": "tacky",
   "version": "2.0.0",
   "description": "Server-side response caching plugin for hapi",
-  "main": "index.js",
+  "main": "lib/index.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/continuationlabs/tacky.git"
   },
   "scripts": {
-    "test": "lab -t 100 -Lva code",
-    "changelog": "node node_modules/.bin/mdchangelog --remote continuationlabs/tacky --no-prologue  --order-milestones semver --order-issues closed_at"
+    "test": "semistandard && lab -t 100 -va code",
+    "changelog": "mdchangelog --remote continuationlabs/tacky --no-prologue  --order-milestones semver --order-issues closed_at"
   },
   "keywords": [
     "hapi",
     "cache",
     "plugin"
   ],
+  "author": "Continuation Labs <contact@continuation.io> (http://continuation.io/)",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/continuationlabs/tacky/issues"
+  },
   "devDependencies": {
     "code": "1.4.x",
     "hapi": "8.4.x",
-    "lab": "5.7.x"
+    "lab": "5.7.x",
+    "semistandard": "7.x.x"
   },
   "dependencies": {
     "hoek": "2.12.x",

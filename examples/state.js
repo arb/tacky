@@ -1,3 +1,4 @@
+var Assert = require('assert');
 var Http = require('http');
 var Hapi = require('hapi');
 var Hoek = require('hoek');
@@ -9,7 +10,7 @@ server.connection({ port: 9001 });
 server.register({
   register: Tacky
 }, function (err) {
-
+  Assert.ifError(err);
   server.route({
     method: 'get',
     path: '/',
@@ -18,32 +19,31 @@ server.register({
         cache: {
             hydrate: function (request, callback) {
               Http.get('http://www.google.com', function (res) {
-                var data = '';
+                var buffers = [];
                 res.on('data', function (chunk) {
-                  data += chunk;
+                  buffers.push(chunk);
                 });
                 res.on('end', function () {
                   setTimeout(function () {
-                    callback(null, data, {
+                    callback(null, buffers.join().toString(), {
                       statusCode: 202
                     });
                   }, 1000);
                 });
               });
             }
-        }
+          }
       }
     }
   });
   server.start(function () {
-    console.log('Server started at ' + server.info.uri)
+    console.log('Server started at ' + server.info.uri);
   });
   server.ext('onPreResponse', function (request, reply) {
-
     var response = request.response;
 
     if (response.isBoom) {
-        return reply.continue();
+      return reply.continue();
     }
 
     var state = Hoek.reach(response, 'plugins.tacky.state');
