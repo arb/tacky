@@ -1,4 +1,8 @@
 
+## [**2.0.1**](https://github.com/continuationlabs/tacky/issues?milestone=2&state=open)
+- [**#17**](https://github.com/continuationlabs/tacky/issues/17) Cleanup
+- [**#18**](https://github.com/continuationlabs/tacky/issues/18) Misc cleanup. Closes #17.
+
 ## [**2.0.0**](https://github.com/continuationlabs/tacky/issues?milestone=1&state=closed)
 - [**#13**](https://github.com/continuationlabs/tacky/issues/13) Store the state value in the cache as well
 - [**#12**](https://github.com/continuationlabs/tacky/issues/12) Store `state` in Cache
@@ -10,4 +14,3 @@
 - [**#5**](https://github.com/continuationlabs/tacky/issues/5) No Cache
 - [**#6**](https://github.com/continuationlabs/tacky/issues/6) Change State
 - [**#8**](https://github.com/continuationlabs/tacky/issues/8) Undefined 2
-

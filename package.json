@@ -9,7 +9,7 @@
   },
   "scripts": {
     "test": "semistandard && lab -t 100 -va code",
-    "changelog": "mdchangelog --remote continuationlabs/tacky --no-prologue  --order-milestones semver --order-issues closed_at"
+    "changelog": "mdchangelog --remote continuationlabs/tacky --no-prologue  --order-milestones semver --order-issues closed_at --overwrite --no-orphan-issues"
   },
   "keywords": [
     "hapi",
