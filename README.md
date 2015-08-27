@@ -13,7 +13,7 @@ tacky adds a new handler named `cache` that can be used on any route that is a `
 
 ## Usage
 
-See the [API Reference]()
+See the [API Reference](https://github.com/continuationlabs/tacky/blob/master/API.md)
 
 ### Example
 
