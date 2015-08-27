@@ -17,22 +17,22 @@ server.register({
     config: {
       handler: {
         cache: {
-            hydrate: function (request, callback) {
-              Http.get('http://www.google.com', function (res) {
-                var buffers = [];
-                res.on('data', function (chunk) {
-                  buffers.push(chunk);
-                });
-                res.on('end', function () {
-                  setTimeout(function () {
-                    callback(null, buffers.join().toString(), {
-                      statusCode: 202
-                    });
-                  }, 1000);
-                });
+          hydrate: function (request, callback) {
+            Http.get('http://www.google.com', function (res) {
+              var buffers = [];
+              res.on('data', function (chunk) {
+                buffers.push(chunk);
               });
-            }
+              res.on('end', function () {
+                setTimeout(function () {
+                  callback(null, buffers.join().toString(), {
+                    statusCode: 202
+                  });
+                }, 1000);
+              });
+            });
           }
+        }
       }
     }
   });
