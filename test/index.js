@@ -23,12 +23,12 @@ internals.getTtl = function (header) {
   return age;
 };
 
-internals.checkCacheHeader = function (res, mix, max) {
+internals.checkCacheHeader = function (res, expires) {
   expect(res.headers['cache-control']).to.match(internals.headerRegex);
 
   var ttl = internals.getTtl(res.headers['cache-control']);
   // In seconds
-  expect(ttl).to.be.between(mix, max);
+  expect(ttl).to.be.about(expires, Math.floor(expires * 0.60));
 };
 
 describe('tacky', function () {
@@ -107,7 +107,7 @@ describe('tacky', function () {
           server.inject({
             url: '/'
           }, function (res) {
-            internals.checkCacheHeader(res, 599, 1000);
+            internals.checkCacheHeader(res, 1000);
             expect(res.result).to.deep.equal(result);
             setTimeout(next, 1000);
           });
@@ -116,7 +116,7 @@ describe('tacky', function () {
           server.inject({
             url: '/'
           }, function (res) {
-            internals.checkCacheHeader(res, 587, 980);
+            internals.checkCacheHeader(res, 980);
             expect(res.headers['cache-control']).to.match(internals.headerRegex);
 
             expect(res.result).to.deep.equal(result);
@@ -141,7 +141,7 @@ describe('tacky', function () {
           server.inject({
             url: '/'
           }, function (res) {
-            internals.checkCacheHeader(res, 59, 100);
+            internals.checkCacheHeader(res, 100);
             expect(res.result).to.deep.equal(result);
 
             var cache = server._caches._default;
@@ -193,7 +193,7 @@ describe('tacky', function () {
         server.inject({
           url: '/'
         }, function (res) {
-          internals.checkCacheHeader(res, 59, 100);
+          internals.checkCacheHeader(res, 100);
 
           var cache = server._caches['super-cache'];
           expect(cache.segments['!tacky']).to.be.true();
@@ -312,7 +312,7 @@ describe('tacky', function () {
           server.inject({
             url: '/'
           }, function (res) {
-            internals.checkCacheHeader(res, 59, 100);
+            internals.checkCacheHeader(res, 100);
             expect(res.result).to.equal(result);
             next();
           });
@@ -355,7 +355,7 @@ describe('tacky', function () {
           server.inject({
             url: '/'
           }, function (res) {
-            internals.checkCacheHeader(res, 59, 100);
+            internals.checkCacheHeader(res, 100);
             expect(res.result).to.equal(result);
             next();
           });
@@ -424,7 +424,7 @@ describe('tacky', function () {
         server.inject({
           url: '/'
         }, function (res) {
-          internals.checkCacheHeader(res, 59, 100);
+          internals.checkCacheHeader(res, 100);
           next();
         });
       }], done);
@@ -499,7 +499,7 @@ describe('tacky', function () {
           server.inject({
             url: '/cache'
           }, function (res) {
-            internals.checkCacheHeader(res, 599, 1000);
+            internals.checkCacheHeader(res, 1000);
             expect(res.result).to.deep.equal(result);
 
             var cache = server._caches._default;
@@ -513,7 +513,7 @@ describe('tacky', function () {
           server.inject({
             url: '/'
           }, function (res) {
-            internals.checkCacheHeader(res, 59, 100);
+            internals.checkCacheHeader(res, 100);
             expect(res.result).to.equal(123456);
 
             var cache = server._caches._default;
