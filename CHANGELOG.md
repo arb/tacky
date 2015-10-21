@@ -1,5 +1,5 @@
 
-## [**3.0.0**](https://github.com/continuationlabs/tacky/issues?milestone=3&state=open)
+## [**3.0.0**](https://github.com/continuationlabs/tacky/issues?milestone=3&state=closed)
 - [**#26**](https://github.com/continuationlabs/tacky/issues/26) Drop semi-standard
 - [**#25**](https://github.com/continuationlabs/tacky/issues/25) Hapi 10+
 - [**#27**](https://github.com/continuationlabs/tacky/issues/27) Updates
