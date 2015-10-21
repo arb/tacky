@@ -1,3 +1,5 @@
+'use strict';
+
 var Hapi = require('hapi');
 var Insync = require('insync');
 var Tacky = require('../lib');
@@ -37,8 +39,8 @@ exports.prepareServer = function (config, callback) {
         return server.start(next);
       }
       next();
-    }], function () {
-      callback(null, server);
     }
-  );
+  ], function () {
+    callback(null, server);
+  });
 };

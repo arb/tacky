@@ -1,3 +1,5 @@
+'use strict';
+
 /*eslint-disable handle-callback-err */
 var Code = require('code');
 var Hapi = require('hapi');
