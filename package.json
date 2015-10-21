@@ -32,7 +32,10 @@
     "hoek": "2.12.x",
     "insync": "1.x.x"
   },
+  "engines" : {
+    "node" : "4.x.x" 
+  },
   "peerDependencies": {
-    "hapi": ">= 8.x.x"
+    "hapi": ">= 10.x.x"
   }
 }
