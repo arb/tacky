@@ -1,3 +1,5 @@
+'use strict';
+
 var Assert = require('assert');
 var Http = require('http');
 var Hapi = require('hapi');
