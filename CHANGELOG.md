@@ -1,5 +1,13 @@
 
-## [**2.0.1**](https://github.com/continuationlabs/tacky/issues?milestone=2&state=open)
+## [**3.0.0**](https://github.com/continuationlabs/tacky/issues?milestone=3&state=open)
+- [**#26**](https://github.com/continuationlabs/tacky/issues/26) Drop semi-standard
+- [**#25**](https://github.com/continuationlabs/tacky/issues/25) Hapi 10+
+- [**#27**](https://github.com/continuationlabs/tacky/issues/27) Updates
+
+## [**2.0.4**](https://github.com/continuationlabs/tacky/issues?milestone=4&state=closed)
+- [**#24**](https://github.com/continuationlabs/tacky/issues/24) Testing for hapi 8-10. Lab update.
+
+## [**2.0.1**](https://github.com/continuationlabs/tacky/issues?milestone=2&state=closed)
 - [**#17**](https://github.com/continuationlabs/tacky/issues/17) Cleanup
 - [**#18**](https://github.com/continuationlabs/tacky/issues/18) Misc cleanup. Closes #17.
 
