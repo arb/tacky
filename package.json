@@ -22,15 +22,16 @@
     "url": "https://github.com/continuationlabs/tacky/issues"
   },
   "devDependencies": {
-    "belly-button": "1.x.x",
-    "code": "1.4.x",
-    "hapi": "10.x.x",
-    "lab": "6.x.x",
+    "belly-button": "2.x.x",
+    "code": "2.x.x",
+    "hapi": "13.x.x",
+    "lab": "10.x.x",
     "mdchangelog": "0.8.0"
   },
   "dependencies": {
-    "hoek": "2.12.x",
-    "insync": "1.x.x"
+    "insync": "2.x.x",
+    "lodash.merge": "4.3.5",
+    "reach": "1.x.x"
   },
   "engines": {
     "node": "4.x.x"

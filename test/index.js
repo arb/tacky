@@ -1,48 +1,47 @@
 'use strict';
 
 /*eslint-disable handle-callback-err */
-var Code = require('code');
-var Hapi = require('hapi');
-var Hoek = require('hoek');
-var Insync = require('insync');
-var Lab = require('lab');
+const Code = require('code');
+const Hapi = require('hapi');
+const Insync = require('insync');
+const Lab = require('lab');
 
-var Helper = require('./helper');
-var Tacky = require('../lib');
+const Helper = require('./helper');
+const Tacky = require('../lib');
 
-var lab = exports.lab = Lab.script();
-var describe = lab.describe;
-var it = lab.it;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.describe;
+const it = lab.it;
+const expect = Code.expect;
 
-var internals = {
+const internals = {
   headerRegex: /max-age=\d+,\s+must-revalidate(,\s+private)?/
 };
 
-internals.getTtl = function (header) {
-  var age = header.match(/(\d+)/)[0];
+internals.getTtl = (header) => {
+  let age = header.match(/(\d+)/)[0];
   age = parseInt(age, 10);
   return age;
 };
 
-internals.checkCacheHeader = function (res, expires) {
+internals.checkCacheHeader = (res, expires) => {
   expect(res.headers['cache-control']).to.match(internals.headerRegex);
 
-  var ttl = internals.getTtl(res.headers['cache-control']);
+  const ttl = internals.getTtl(res.headers['cache-control']);
   // In seconds
   expect(ttl).to.be.about(expires, Math.floor(expires * 0.60));
 };
 
-describe('tacky', function () {
-  it('throws if the handler is missing a hydrate function', function (done) {
-    var server = new Hapi.Server();
+describe('tacky', () => {
+  it('throws if the handler is missing a hydrate function', (done) => {
+    const server = new Hapi.Server();
     server.connection();
 
     server.register({
       register: Tacky
-    }, function (err) {
+    }, (err) => {
       expect(err).to.not.exist();
-      expect(function () {
+      expect(() => {
         server.route({
           method: 'get',
           path: '/',
@@ -55,21 +54,21 @@ describe('tacky', function () {
     });
   });
 
-  it('throws if the method is not a "GET" method', function (done) {
-    var server = new Hapi.Server();
+  it('throws if the method is not a "GET" method', (done) => {
+    const server = new Hapi.Server();
     server.connection();
 
     server.register({
       register: Tacky
-    }, function (err) {
+    }, (err) => {
       expect(err).to.not.exist();
-      expect(function () {
+      expect(() => {
         server.route({
           method: 'post',
           path: '/',
           handler: {
             cache: {
-              hydrate: Hoek.ignore
+              hydrate () { }
             }
           }
         });
@@ -78,46 +77,46 @@ describe('tacky', function () {
     });
   });
 
-  it('throws if the cache does not exist', function (done) {
-    var server = new Hapi.Server();
+  it('throws if the cache does not exist', (done) => {
+    const server = new Hapi.Server();
     server.connection();
 
-    expect(function () {
+    expect(() => {
       server.register({
         register: Tacky,
         options: {
           cache: 'foobar'
         }
-      }, Hoek.ignore);
+      }, () => {});
     }).to.throw('Unknown cache foobar');
     done();
   });
 
-  it('sets the cache-control header smartly', function (done) {
-    var result = { foo: 'bar', baz: 123 };
+  it('sets the cache-control header smartly', (done) => {
+    const result = { foo: 'bar', baz: 123 };
 
     Helper.prepareServer({
-      hydrate: function (request, callback) {
+      hydrate (request, callback) {
         callback(null, result);
       },
       expiresIn: 1000000
-    }, function (err, server) {
+    }, (err, server) => {
       expect(err).to.not.exist();
 
       Insync.series([
-        function (next) {
+        (next) => {
           server.inject({
             url: '/'
-          }, function (res) {
+          }, (res) => {
             internals.checkCacheHeader(res, 1000);
             expect(res.result).to.deep.equal(result);
             setTimeout(next, 1000);
           });
         },
-        function (next) {
+        (next) => {
           server.inject({
             url: '/'
-          }, function (res) {
+          }, (res) => {
             internals.checkCacheHeader(res, 980);
             expect(res.headers['cache-control']).to.match(internals.headerRegex);
 
@@ -129,36 +128,32 @@ describe('tacky', function () {
     });
   });
 
-  it('stores the result of hydrate in the default server memory cache', function (done) {
-    var result = { foo: 'value1', bar: [1, 2, 3] };
+  it('stores the result of hydrate in the default server memory cache', (done) => {
+    const result = { foo: 'value1', bar: [1, 2, 3] };
     Helper.prepareServer({
-      hydrate: function (request, callback) {
+      hydrate (request, callback) {
         callback(null, result);
       }
-    }, function (err, server) {
+    }, (err, server) => {
       expect(err).to.not.exist();
 
-      Insync.series([
-        function (next) {
-          server.inject({
-            url: '/'
-          }, function (res) {
-            internals.checkCacheHeader(res, 100);
-            expect(res.result).to.deep.equal(result);
+      server.inject({
+        url: '/'
+      }, (res) => {
+        internals.checkCacheHeader(res, 100);
+        expect(res.result).to.deep.equal(result);
 
-            var cache = server._caches._default;
-            expect(cache.segments['!tacky']).to.be.true();
-            expect(cache.client.connection.cache['!tacky']['/']).to.exist();
+        const cache = server._caches._default;
+        expect(cache.segments['!tacky']).to.be.true();
+        expect(cache.client.connection.cache['!tacky']['/']).to.exist();
 
-            next();
-          });
-        }
-      ], done);
+        done();
+      });
     });
   });
 
-  it('stores the result of hydrate the provisioned cache', function (done) {
-    var server = new Hapi.Server({
+  it('stores the result of hydrate the provisioned cache', (done) => {
+    const server = new Hapi.Server({
       debug: false,
       cache: {
         engine: require('hapi/node_modules/catbox-memory'),
@@ -168,7 +163,7 @@ describe('tacky', function () {
     server.connection();
 
     Insync.series([
-      function (next) {
+      (next) => {
         server.register({
           register: Tacky,
           options: {
@@ -176,14 +171,15 @@ describe('tacky', function () {
             cache: 'super-cache'
           }
         }, next);
-      }, function (next) {
+      },
+      (next) => {
         server.route({
           method: 'get',
           path: '/',
           config: {
             handler: {
               cache: {
-                hydrate: function (request, callback) {
+                hydrate (request, callback) {
                   callback(null, true);
                 }
               }
@@ -191,13 +187,14 @@ describe('tacky', function () {
           }
         });
         server.start(next);
-      }, function (next) {
+      },
+      (next) => {
         server.inject({
           url: '/'
-        }, function (res) {
+        }, (res) => {
           internals.checkCacheHeader(res, 100);
 
-          var cache = server._caches['super-cache'];
+          const cache = server._caches['super-cache'];
           expect(cache.segments['!tacky']).to.be.true();
           expect(cache.client.connection.cache['!tacky']['/']).to.exist();
 
@@ -206,28 +203,28 @@ describe('tacky', function () {
       }], done);
   });
 
-  it('serves from the cache if present', function (done) {
-    var result = 'abcdefghijk';
-    var hitCount = 0;
+  it('serves from the cache if present', (done) => {
+    const result = 'abcdefghijk';
+    let hitCount = 0;
 
     Helper.prepareServer({
-      hydrate: function (request, callback) {
+      hydrate (request, callback) {
         hitCount++;
         callback(null, result);
       }
-    }, function (err, server) {
+    }, (err, server) => {
       expect(err).to.not.exist();
 
       Insync.series([
-        function (next) {
+        (next) => {
           server.inject({
             url: '/'
           }, next.bind(null, null));
         },
-        function (next) {
+        (next) => {
           server.inject({
             url: '/'
-          }, function (res) {
+          }, (res) => {
             expect(res.result).to.equal(result);
             expect(hitCount).to.equal(1);
 
@@ -238,30 +235,29 @@ describe('tacky', function () {
     });
   });
 
-  it('always provides request state and cache information view response.plugins.tacky', function (done) {
-    var result = [1, 2, 3, 4, 5];
-    var state = {
+  it('always provides request state and cache information via response.plugins.tacky', (done) => {
+    const result = [1, 2, 3, 4, 5];
+    const state = {
       total: 1,
       data: {
         foo: 'bar',
         name: 'tacky'
       }
     };
-    var hitCount = 0;
+    let hitCount = 0;
 
     Helper.prepareServer({
-      hydrate: function (request, callback) {
+      hydrate (request, callback) {
         hitCount++;
         callback(null, result, state);
-      },
-      start: true
-    }, function (err, server) {
+      }
+    }, (err, server) => {
       expect(err).to.not.exist();
 
       Insync.series([
-        function (next) {
-          server.ext('onPreResponse', function (request, reply) {
-            var tacky = request.response.plugins.tacky;
+        (next) => {
+          server.ext('onPreResponse', (request, reply) => {
+            const tacky = request.response.plugins.tacky;
             expect(tacky.state).to.deep.equal(state);
             expect(tacky.cache).to.exist();
             expect(tacky.cache).to.have.length(3);
@@ -270,50 +266,50 @@ describe('tacky', function () {
 
           next();
         },
-        function (next) {
+        (next) => {
           server.inject({
             url: '/'
-          }, function (res) {
+          }, (res) => {
             expect(res.result).to.deep.equal(result);
             next();
           });
-        }, function (next) {
+        },
+        (next) => {
           server.inject({
             url: '/'
-          }, function (res) {
+          }, (res) => {
             expect(res.result).to.deep.equal(result);
             next();
           });
         }
-      ], function (err) {
+      ], (err) => {
         expect(hitCount).to.equal(1);
         done();
       });
     });
   });
 
-  it('will report cache errors when getting cache values', function (done) {
-    var result = [{ foo: 'bar' }, { foo: 'baz' }, { foo: 'zip' }];
+  it('will report cache errors when getting cache values', (done) => {
+    const result = [{ foo: 'bar' }, { foo: 'baz' }, { foo: 'zip' }];
 
     Helper.prepareServer({
-      hydrate: function (request, callback) {
+      hydrate (request, callback) {
         callback(null, result);
-      },
-      start: false
-    }, function (err, server) {
+      }
+    }, (err, server) => {
       expect(err).to.not.exist();
       Insync.series([
-        function (next) {
-          server.once('request', function (request, event) {
+        (next) => {
+          server.once('request', (request, event) => {
             expect(event.tags).to.deep.equal(['cache', 'error']);
             expect(event.data.message).to.equal('Error looking up / in the cache');
           });
           next();
         },
-        function (next) {
+        (next) => {
           server.inject({
             url: '/'
-          }, function (res) {
+          }, (res) => {
             internals.checkCacheHeader(res, 100);
             expect(res.result).to.equal(result);
             next();
@@ -323,27 +319,27 @@ describe('tacky', function () {
     });
   });
 
-  it('will report cache errors when setting cache values', function (done) {
-    var result = [{ foo: 'bar' }, { foo: 'baz' }, { foo: 'zip' }];
+  it('will report cache errors when setting cache values', (done) => {
+    const result = [{ foo: 'bar' }, { foo: 'baz' }, { foo: 'zip' }];
 
     Helper.prepareServer({
-      hydrate: function (request, callback) {
+      hydrate (request, callback) {
         callback(null, result);
       }
-    }, function (err, server) {
+    }, (err, server) => {
       expect(err).to.not.exist();
       Insync.series([
-        function (next) {
-          server.once('request', function (request, event) {
+        (next) => {
+          server.once('request', (request, event) => {
             expect(event.tags).to.deep.equal(['cache', 'error']);
             expect(event.data.message).to.equal('Error setting cache for /');
           });
           next();
         },
-        function (next) {
-          var Policy = require('hapi/node_modules/catbox/lib/policy');
-          var set = Policy.prototype.set;
-          Policy.prototype.set = function (id, value, options, callback) {
+        (next) => {
+          const Policy = require('hapi/node_modules/catbox/lib/policy');
+          const set = Policy.prototype.set;
+          Policy.prototype.set = (id, value, options, callback) => {
             Policy.prototype.set = set;
 
             expect(id).to.equal('/');
@@ -356,7 +352,7 @@ describe('tacky', function () {
 
           server.inject({
             url: '/'
-          }, function (res) {
+          }, (res) => {
             internals.checkCacheHeader(res, 100);
             expect(res.result).to.equal(result);
             next();
@@ -366,53 +362,53 @@ describe('tacky', function () {
     });
   });
 
-  it('will reply with an error if hydrate fails', function (done) {
+  it('will reply with an error if hydrate fails', (done) => {
     Helper.prepareServer({
-      hydrate: function (request, callback) {
+      hydrate (request, callback) {
         callback(new Error('mock error for testing'));
       }
-    }, function (err, server) {
+    }, (err, server) => {
       expect(err).to.not.exist();
       server.inject({
         url: '/'
-      }, function (res) {
+      }, (res) => {
         expect(res.result).to.deep.equal({
           statusCode: 500,
           error: 'Internal Server Error',
           message: 'An internal server error occurred'
         });
-        expect(res.headers['cache-control']).to.equal('no-cache');
         done();
       });
     });
   });
 
-  it('will pass the context option to the hydrate and generateKey function', function (done) {
-    var server = new Hapi.Server({ debug: false });
-    var context = {
+  it('will pass the context option to the hydrate and generateKey function', (done) => {
+    const server = new Hapi.Server({ debug: false });
+    const context = {
       foo: 'bar',
       baz: true
     };
     server.connection();
 
     Insync.series([
-      function (next) {
+      (next) => {
         server.register({
           register: Tacky,
           options: { expiresIn: 100000, bind: context }
         }, next);
-      }, function (next) {
+      },
+      (next) => {
         server.route({
           method: 'get',
           path: '/',
           config: {
             handler: {
               cache: {
-                hydrate: function (request, callback) {
+                hydrate (request, callback) {
                   expect(this).to.deep.equal(context);
                   callback(null, true);
                 },
-                generateKay: function (request) {
+                generateKey (request) {
                   expect(this).to.deep.equal(context);
                   return request.raw.req.url;
                 },
@@ -422,29 +418,30 @@ describe('tacky', function () {
           }
         });
         server.start(next);
-      }, function (next) {
+      },
+      (next) => {
         server.inject({
           url: '/'
-        }, function (res) {
+        }, (res) => {
           internals.checkCacheHeader(res, 100);
           next();
         });
       }], done);
   });
 
-  it('will not cache values if the generateKey is null or undefined', function (done) {
-    var result = { foo: 'bar', baz: 123 };
+  it('will not cache values if the generateKey is null or undefined', (done) => {
+    const result = { foo: 'bar', baz: 123 };
     Helper.prepareServer({
-      hydrate: function (request, callback) {
+      hydrate (request, callback) {
         callback(null, result);
       },
-      generateKey: function () {
+      generateKey () {
         return undefined;
       }
-    }, function (err, server) {
+    }, (err, server) => {
       expect(err).to.not.exist();
 
-      server.ext('onPreResponse', function (request, reply) {
+      server.ext('onPreResponse', (request, reply) => {
         expect(request.response.plugins.tacky).to.deep.equal({
           cache: null,
           state: null
@@ -453,15 +450,14 @@ describe('tacky', function () {
       });
 
       Insync.series([
-        function (next) {
+        (next) => {
           server.inject({
             url: '/'
-          }, function (res) {
+          }, (res) => {
             expect(res.statusCode).to.equal(200);
-            expect(res.headers['cache-control']).to.equal('no-cache');
             expect(res.result).to.deep.equal(result);
 
-            var cache = server._caches._default;
+            const cache = server._caches._default;
             expect(cache.segments['!tacky']).to.be.true();
             expect(cache.client.connection.cache).to.have.length(0);
             done();
@@ -471,24 +467,23 @@ describe('tacky', function () {
     });
   });
 
-  it('will use the expiresIn route option instead of the Policy default', function (done) {
-    var result = [{ foo: 'bar' }, { foo: 'baz' }, { foo: 'zip' }];
+  it('will use the expiresIn route option instead of the Policy default', (done) => {
+    const result = [{ foo: 'bar' }, { foo: 'baz' }, { foo: 'zip' }];
 
     Helper.prepareServer({
-      hydrate: function (request, callback) {
+      hydrate (request, callback) {
         callback(null, 123456);
-      },
-      start: true
-    }, function (err, server) {
+      }
+    }, (err, server) => {
       Insync.series([
-        function (next) {
+        (next) => {
           server.route({
             method: 'get',
             path: '/cache',
             config: {
               handler: {
                 cache: {
-                  hydrate: function (request, callback) {
+                  hydrate (request, callback) {
                     return callback(null, result);
                   },
                   expiresIn: 1000000
@@ -497,28 +492,30 @@ describe('tacky', function () {
             }
           });
           next();
-        }, function (next) {
+        },
+        (next) => {
           server.inject({
             url: '/cache'
-          }, function (res) {
+          }, (res) => {
             internals.checkCacheHeader(res, 1000);
             expect(res.result).to.deep.equal(result);
 
-            var cache = server._caches._default;
+            const cache = server._caches._default;
             expect(cache.segments['!tacky']).to.be.true();
             expect(cache.client.connection.cache['!tacky']['/cache'].ttl).to.equal(1000000);
             expect(cache.client.connection.cache['!tacky']['/cache'].item).to.equal(JSON.stringify({ result: result, state: null }));
 
             next();
           });
-        }, function (next) {
+        },
+        (next) => {
           server.inject({
             url: '/'
-          }, function (res) {
+          }, (res) => {
             internals.checkCacheHeader(res, 100);
             expect(res.result).to.equal(123456);
 
-            var cache = server._caches._default;
+            const cache = server._caches._default;
             expect(cache.client.connection.cache['!tacky']['/'].ttl).to.equal(100000);
             expect(cache.client.connection.cache['!tacky']['/'].item).to.equal(JSON.stringify({ result: 123456, state: null }));
 
@@ -528,29 +525,29 @@ describe('tacky', function () {
     });
   });
 
-  describe('generateKey()', function () {
-    it('can be used to override the default generateKey function', function (done) {
-      var result = { foo: 'bar', baz: 123 };
+  describe('generateKey()', () => {
+    it('can be used to override the default generateKey function', (done) => {
+      const result = { foo: 'bar', baz: 123 };
       Helper.prepareServer({
-        hydrate: function (request, callback) {
+        hydrate (request, callback) {
           callback(null, result);
         },
-        generateKey: function (request) {
+        generateKey (request) {
           return 12345 + request.state.foo;
         }
-      }, function (err, server) {
+      }, (err, server) => {
         expect(err).to.not.exist();
         Insync.series([
-          function (next) {
+          (next) => {
             server.inject({
               url: '/',
               headers: {
                 'Cookie': 'foo=bar'
               }
-            }, function (res) {
+            }, (res) => {
               expect(res.headers['cache-control']).to.match(internals.headerRegex);
 
-              var cache = server._caches._default;
+              const cache = server._caches._default;
               expect(cache.segments['!tacky']).to.be.true();
               expect(cache.client.connection.cache['!tacky']['12345bar']).to.exist();
 
@@ -561,27 +558,27 @@ describe('tacky', function () {
       });
     });
 
-    it('will throw an error if the resultant cache key is not a string', function (done) {
-      var result = { foo: 'bar', baz: 123 };
+    it('will throw an error if the resultant cache key is not a string', (done) => {
+      const result = { foo: 'bar', baz: 123 };
 
       Helper.prepareServer({
-        hydrate: function (request, callback) {
+        hydrate (request, callback) {
           callback(null, result);
         },
-        generateKey: function (request) {
+        generateKey (request) {
           return false;
         }
-      }, function (err, server) {
+      }, (err, server) => {
         expect(err).to.not.exist();
         Insync.series([
-          function (next) {
-            server.on('request-error', function (request, err) {
+          (next) => {
+            server.on('request-error', (request, err) => {
               expect(err).to.be.an.instanceOf(Error);
               expect(err.message).to.equal('Uncaught error: generateKey must return a string.');
             });
             next();
           },
-          function (next) {
+          (next) => {
             server.inject({
               url: '/'
             }, next.bind(null, null));
