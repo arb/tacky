@@ -1,4 +1,9 @@
 
+## [**4.0.0**](https://github.com/continuationlabs/tacky/issues?milestone=6&state=open)
+- [**#30**](https://github.com/continuationlabs/tacky/issues/30) Node version cleanup.
+- [**#29**](https://github.com/continuationlabs/tacky/issues/29) Server.initialize
+- [**#28**](https://github.com/continuationlabs/tacky/issues/28) ES6 Updates
+
 ## [**3.0.0**](https://github.com/continuationlabs/tacky/issues?milestone=3&state=closed)
 - [**#26**](https://github.com/continuationlabs/tacky/issues/26) Drop semi-standard
 - [**#25**](https://github.com/continuationlabs/tacky/issues/25) Hapi 10+
