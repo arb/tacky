@@ -1,26 +1,24 @@
 'use strict';
 
-var Hapi = require('hapi');
-var Insync = require('insync');
-var Tacky = require('../lib');
+const Hapi = require('hapi');
+const Insync = require('insync');
+const Tacky = require('../lib');
 
-exports.prepareServer = function (config, callback) {
+module.exports.prepareServer = (config, callback) => {
   /*eslint-disable */
-  config.start = (config.start == null ? true : config.start);
   config.expiresIn = config.expiresIn || 100000;
   /*eslint-enable */
-  var server = new Hapi.Server({
-    debug: false
-  });
+  const server = new Hapi.Server({ debug: false });
   server.connection();
 
   Insync.series([
-    function (next) {
+    (next) => {
       server.register({
         register: Tacky,
         options: { expiresIn: config.expiresIn }
       }, next);
-    }, function (next) {
+    },
+    (next) => {
       server.route({
         method: 'get',
         path: '/',
@@ -34,11 +32,9 @@ exports.prepareServer = function (config, callback) {
         }
       });
       next();
-    }, function (next) {
-      if (config.start) {
-        return server.start(next);
-      }
-      next();
+    },
+    (next) => {
+      server.initialize(next);
     }
   ], function () {
     callback(null, server);

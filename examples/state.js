@@ -1,17 +1,15 @@
 'use strict';
 
-var Assert = require('assert');
-var Http = require('http');
-var Hapi = require('hapi');
-var Hoek = require('hoek');
-var Tacky = require('../lib');
+const Assert = require('assert');
+const Http = require('http');
+const Hapi = require('hapi');
+const Reach = require('reach');
+const Tacky = require('../lib');
 
-var server = new Hapi.Server();
+const server = new Hapi.Server();
 server.connection({ port: 9001 });
 
-server.register({
-  register: Tacky
-}, function (err) {
+server.register({ register: Tacky }, (err) => {
   Assert.ifError(err);
   server.route({
     method: 'get',
@@ -19,18 +17,14 @@ server.register({
     config: {
       handler: {
         cache: {
-          hydrate: function (request, callback) {
-            Http.get('http://www.google.com', function (res) {
-              var buffers = [];
-              res.on('data', function (chunk) {
-                buffers.push(chunk);
-              });
-              res.on('end', function () {
-                setTimeout(function () {
-                  callback(null, buffers.join().toString(), {
-                    statusCode: 202
-                  });
-                }, 1000);
+          hydrate: (request, callback) => {
+            Http.get('http://www.google.com', (res) => {
+              const buffers = [];
+              res.on('data', (chunk) => { buffers.push(chunk); });
+              res.on('end', () => {
+                callback(null, buffers.join().toString(), {
+                  statusCode: 202
+                });
               });
             });
           }
@@ -38,17 +32,15 @@ server.register({
       }
     }
   });
-  server.start(function () {
-    console.log('Server started at ' + server.info.uri);
-  });
-  server.ext('onPreResponse', function (request, reply) {
-    var response = request.response;
+  server.start(() => { console.log('Server started at ' + server.info.uri); });
+  server.ext('onPreResponse', (request, reply) => {
+    const response = request.response;
 
     if (response.isBoom) {
       return reply.continue();
     }
 
-    var state = Hoek.reach(response, 'plugins.tacky.state');
+    const state = Reach(response, 'plugins.tacky.state');
 
     if (state) {
       response.statusCode = state.statusCode;
