@@ -1,5 +1,9 @@
 
-## [**4.0.0**](https://github.com/continuationlabs/tacky/issues?milestone=6&state=open)
+## [**4.0.1**](https://github.com/continuationlabs/tacky/issues?milestone=7&state=open)
+- [**#32**](https://github.com/continuationlabs/tacky/issues/32) Only hapi 13. Updated some dependencies. Closes #31.
+- [**#31**](https://github.com/continuationlabs/tacky/issues/31) Drop hapi v12 from Travis
+
+## [**4.0.0**](https://github.com/continuationlabs/tacky/issues?milestone=6&state=closed)
 - [**#30**](https://github.com/continuationlabs/tacky/issues/30) Node version cleanup.
 - [**#29**](https://github.com/continuationlabs/tacky/issues/29) Server.initialize
 - [**#28**](https://github.com/continuationlabs/tacky/issues/28) ES6 Updates
