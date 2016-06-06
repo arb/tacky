@@ -109,7 +109,7 @@ describe('tacky', () => {
             url: '/'
           }, (res) => {
             internals.checkCacheHeader(res, 1000);
-            expect(res.result).to.deep.equal(result);
+            expect(res.result).to.equal(result);
             setTimeout(next, 1000);
           });
         },
@@ -120,7 +120,7 @@ describe('tacky', () => {
             internals.checkCacheHeader(res, 980);
             expect(res.headers['cache-control']).to.match(internals.headerRegex);
 
-            expect(res.result).to.deep.equal(result);
+            expect(res.result).to.equal(result);
             next();
           });
         }
@@ -141,7 +141,7 @@ describe('tacky', () => {
         url: '/'
       }, (res) => {
         internals.checkCacheHeader(res, 100);
-        expect(res.result).to.deep.equal(result);
+        expect(res.result).to.equal(result);
 
         const cache = server._caches._default;
         expect(cache.segments['!tacky']).to.be.true();
@@ -258,7 +258,7 @@ describe('tacky', () => {
         (next) => {
           server.ext('onPreResponse', (request, reply) => {
             const tacky = request.response.plugins.tacky;
-            expect(tacky.state).to.deep.equal(state);
+            expect(tacky.state).to.equal(state);
             expect(tacky.cache).to.exist();
             expect(tacky.cache).to.have.length(3);
             reply.continue();
@@ -270,7 +270,7 @@ describe('tacky', () => {
           server.inject({
             url: '/'
           }, (res) => {
-            expect(res.result).to.deep.equal(result);
+            expect(res.result).to.equal(result);
             next();
           });
         },
@@ -278,7 +278,7 @@ describe('tacky', () => {
           server.inject({
             url: '/'
           }, (res) => {
-            expect(res.result).to.deep.equal(result);
+            expect(res.result).to.equal(result);
             next();
           });
         }
@@ -301,7 +301,7 @@ describe('tacky', () => {
       Insync.series([
         (next) => {
           server.once('request', (request, event) => {
-            expect(event.tags).to.deep.equal(['cache', 'error']);
+            expect(event.tags).to.equal(['cache', 'error']);
             expect(event.data.message).to.equal('Error looking up / in the cache');
           });
           next();
@@ -331,7 +331,7 @@ describe('tacky', () => {
       Insync.series([
         (next) => {
           server.once('request', (request, event) => {
-            expect(event.tags).to.deep.equal(['cache', 'error']);
+            expect(event.tags).to.equal(['cache', 'error']);
             expect(event.data.message).to.equal('Error setting cache for /');
           });
           next();
@@ -343,7 +343,7 @@ describe('tacky', () => {
             Policy.prototype.set = set;
 
             expect(id).to.equal('/');
-            expect(value).to.deep.equal({
+            expect(value).to.equal({
               result: result,
               state: null
             });
@@ -372,7 +372,7 @@ describe('tacky', () => {
       server.inject({
         url: '/'
       }, (res) => {
-        expect(res.result).to.deep.equal({
+        expect(res.result).to.equal({
           statusCode: 500,
           error: 'Internal Server Error',
           message: 'An internal server error occurred'
@@ -405,11 +405,11 @@ describe('tacky', () => {
             handler: {
               cache: {
                 hydrate (request, callback) {
-                  expect(this).to.deep.equal(context);
+                  expect(this).to.equal(context);
                   callback(null, true);
                 },
                 generateKey (request) {
-                  expect(this).to.deep.equal(context);
+                  expect(this).to.equal(context);
                   return request.raw.req.url;
                 },
                 privacy: 'private'
@@ -442,7 +442,7 @@ describe('tacky', () => {
       expect(err).to.not.exist();
 
       server.ext('onPreResponse', (request, reply) => {
-        expect(request.response.plugins.tacky).to.deep.equal({
+        expect(request.response.plugins.tacky).to.equal({
           cache: null,
           state: null
         });
@@ -455,7 +455,7 @@ describe('tacky', () => {
             url: '/'
           }, (res) => {
             expect(res.statusCode).to.equal(200);
-            expect(res.result).to.deep.equal(result);
+            expect(res.result).to.equal(result);
 
             const cache = server._caches._default;
             expect(cache.segments['!tacky']).to.be.true();
@@ -498,7 +498,7 @@ describe('tacky', () => {
             url: '/cache'
           }, (res) => {
             internals.checkCacheHeader(res, 1000);
-            expect(res.result).to.deep.equal(result);
+            expect(res.result).to.equal(result);
 
             const cache = server._caches._default;
             expect(cache.segments['!tacky']).to.be.true();
