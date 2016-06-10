@@ -20,17 +20,15 @@ See the [API Reference](https://github.com/continuationlabs/tacky/blob/master/AP
 _copied from examples/default.js_
 
 ```js
-var Assert = require('assert');
-var Http = require('http');
-var Hapi = require('hapi');
-var Tacky = require('./lib');
+const Assert = require('assert');
+const Http = require('http');
+const Hapi = require('hapi');
+const Tacky = require('tacky');
 
-var server = new Hapi.Server();
+const server = new Hapi.Server();
 server.connection({ port: 9001 });
 
-server.register({
-  register: Tacky
-}, function (err) {
+server.register({ register: Tacky }, (err) => {
   Assert.ifError(err);
   server.route({
     method: 'get',
@@ -38,16 +36,14 @@ server.register({
     config: {
       handler: {
         cache: {
-          hydrate: function (request, callback) {
-            Http.get('http://www.google.com', function (res) {
-              var buffers = [];
-              res.on('data', function (chunk) {
+          hydrate: (request, callback) => {
+            Http.get('http://www.google.com', (res) => {
+              const buffers = [];
+              res.on('data', (chunk) => {
                 buffers.push(chunk);
               });
-              res.on('end', function () {
-                setTimeout(function () {
-                  callback(null, buffers.join().toString());
-                }, 1000);
+              res.on('end', () => {
+                callback(null, buffers.join().toString());
               });
             });
           }
@@ -55,9 +51,7 @@ server.register({
       }
     }
   });
-  server.start(function () {
-    console.log('Server started at ' + server.info.uri);
-  });
+  server.start(() => { console.log('Server started at ' + server.info.uri); });
 });
 ```
 
