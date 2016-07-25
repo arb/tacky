@@ -8,8 +8,7 @@
     "url": "git://github.com/continuationlabs/tacky.git"
   },
   "scripts": {
-    "test": "belly-button && lab -t 100 -va code",
-    "version": "mdchangelog --remote continuationlabs/tacky --no-prologue  --order-milestones semver --order-issues closed_at --overwrite --no-orphan-issues"
+    "test": "belly-button && lab -t 100 -va code"
   },
   "keywords": [
     "hapi",
