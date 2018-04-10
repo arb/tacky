@@ -5,7 +5,7 @@
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/continuationlabs/tacky.git"
+    "url": "git://github.com/arb/tacky.git"
   },
   "scripts": {
     "test": "belly-button && lab -t 100 -va code"
@@ -15,10 +15,10 @@
     "cache",
     "plugin"
   ],
-  "author": "Continuation Labs <contact@continuation.io> (http://continuation.io/)",
+  "author": "Adam Bretz <arbretz@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/continuationlabs/tacky/issues"
+    "url": "https://github.com/arb/tacky/issues"
   },
   "devDependencies": {
     "belly-button": "2.x.x",

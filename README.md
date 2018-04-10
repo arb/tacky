@@ -1,11 +1,11 @@
-![Tacky](https://github.com/continuationlabs/tacky/raw/master/images/smaller.png)
+![Tacky](https://github.com/arb/tacky/raw/master/images/smaller.png)
 
 <sub>Logo design by chris.ruppert@gmail.com</sub>
 
 Server-side response caching plugin for [hapi](http://hapijs.com/)
 
 [![Current Version](https://img.shields.io/npm/v/tacky.svg)](https://www.npmjs.org/package/tacky)
-[![Build Status](https://travis-ci.org/continuationlabs/tacky.svg)](https://travis-ci.org/continuationlabs/tacky)
+[![Build Status](https://travis-ci.org/arb/tacky.svg)](https://travis-ci.org/arb/tacky)
 [![belly-button-style](https://img.shields.io/badge/eslint-bellybutton-4B32C3.svg)](https://github.com/continuationlabs/belly-button)
 
 
@@ -13,7 +13,7 @@ tacky adds a new handler named `cache` that can be used on any route that is a `
 
 ## Usage
 
-See the [API Reference](https://github.com/continuationlabs/tacky/blob/master/API.md)
+See the [API Reference](https://github.com/arb/tacky/blob/master/API.md)
 
 ### Example
 
